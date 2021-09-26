@@ -53,14 +53,12 @@ namespace E_VoterApi.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterUserModel newUser)
         {
             var registerUser = await Auth.RegisterUser(newUser);
-            if (registerUser.success)
-            {
+            if (registerUser.status == 1)
                 return Ok();
-            }
+            else if (registerUser.status == 0)
+                return BadRequest("user exists");
             else
-            {
                 return BadRequest("user was not created");
-            }
         }
     }
 }

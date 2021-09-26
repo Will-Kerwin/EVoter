@@ -15,6 +15,12 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors(o =>
+    {
+        o.AllowAnyHeader();
+        o.AllowAnyMethod();
+        o.AllowAnyOrigin();
+    });
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "E_VoterApi v1"));
 }

@@ -37,6 +37,11 @@ namespace E_Voter.Store.AuthUseCase
                         Snackbar.Add("Incorrect email and password", Severity.Error);
                         dispatcher.Dispatch(new LoginUserDataActionResult(false, new UserModel()));
                     }
+                    else
+                    {
+                        Snackbar.Add("Unknown error occured", Severity.Error);
+                        dispatcher.Dispatch(new LoginUserDataActionResult(false, new UserModel()));
+                    }
                 }
                 else
                 {

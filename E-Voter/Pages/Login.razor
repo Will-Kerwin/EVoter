@@ -1,7 +1,24 @@
-﻿@page "/register"
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-<h3>Login</h3>
-
-@code {
-
-}
+<MudCard>
+	<MudCardHeader>
+		<MudText Typo=Typo.h3 Align=Align.Center>
+			Log In
+		</MudText>
+	</MudCardHeader>
+	<MudCardContent>
+		<MudForm @ref="form" @bind-Errors="@errors" @bind-IsValid="@success">
+			<MudTextField T="string" @bind-Value="@model.email" Required RequiredError="Please Provide a Email"
+						  Label="Email" Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+			<MudTextField T="string" @bind-Value="@model.password" Required
+						  RequiredError="Please Provide a password" Label="Password" InputType="InputType.Password" />
+		</MudForm>
+	</MudCardContent>
+	<MudCardActions>
+		<MudButton Variant=Variant.Filled OnClick=LoginUser Class="ml-auto">
+			Log In
+		</MudButton>
+	</MudCardActions>
+</MudCard>

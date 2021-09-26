@@ -23,7 +23,18 @@ namespace E_VoterApi.Repository
         {
             using SqlConnection con = new SqlConnection(ConnectionString);
             var checkUser = await con.QuerySingleAsync<Guid?>(
-                    $@"select userID from VoterUsers where userID = {userID}",
+                    $@"select userID from VoterUsers where userID = '{userID}'",
+                    commandType: CommandType.Text
+                    );
+
+            return checkUser != null ? true : false;
+        }
+
+        public static async Task<bool> UserExists(string email)
+        {
+            using SqlConnection con = new SqlConnection(ConnectionString);
+            var checkUser = await con.QuerySingleAsync<Guid?>(
+                    $@"select email from VoterUsers where email = '{email}'",
                     commandType: CommandType.Text
                     );
 
@@ -91,23 +102,27 @@ namespace E_VoterApi.Repository
             }
         }
 
-        public async Task<(bool success, Guid userID)> RegisterUser(RegisterUserModel user)
+        public async Task<(int status, Guid userID)> RegisterUser(RegisterUserModel user)
         {
             try
             {
                 using SqlConnection con = new SqlConnection(ConnectionString);
+
+                if (!(await UserExists(user.email)))
+                    return (0, new Guid());
+
                 var hash = BCrypt.Net.BCrypt.HashPassword(user.password, salt);
                 var result = await con.QuerySingleAsync<Guid>(
                         $@"insert into VoterUsers (userID, firstName, lastName, contactNo, email, password) 
                            output inserted.userID
                            values (NEWID(), '{user.firstName}', '{user.lastName}', '{user.contactNo}', '{user.email}', '{hash}');",
                         commandType: CommandType.Text);
-                return (true, result);
+                return (1, result);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}: {e.InnerException}");
-                return (false, new Guid());
+                return (-1, new Guid());
                 throw;
             }
 

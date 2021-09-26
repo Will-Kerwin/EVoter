@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @using System.ComponentModel.DataAnnotations
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
 <MudCard>
 	<MudCardHeader>
@@ -12,17 +13,17 @@
 			<MudTextField T="string" @bind-Value="@model.email" Required RequiredError="Please Provide a Email"
 						  Label="Email" Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
 			<MudTextField T="string" @bind-Value="@model.password" Required
-						  RequiredError="Please Provide a password" Label="Email" InputType="InputType.Password" />
+						  RequiredError="Please Provide a password" Label="Password" InputType="InputType.Password" />
 			<MudTextField T="string" @bind-Value="@model.firstName" Required
 						  Label="First Name" RequiredError="Please give your first name" />
 			<MudTextField T="string" @bind-Value="@model.lastName" Required
 						  Label="Last Name" RequiredError="Please give your last name" />
 			<MudTextField @bind-Value="@model.contactNo" Required RequiredError="please provide your phone number"
-                      Label="InputType.Telephone" Validation="@(new Func<string, string>(ValidPhone))"/>
+                      Label="Phone" Validation="@(new Func<string, string>(ValidPhone))"/>
 		</MudForm>
 	</MudCardContent>
 	<MudCardActions>
-		<MudButton Variant=Variant.Filled OnClick=RegisterUser Disabled="@(!success)" Class="ml-auto">
+		<MudButton Variant=Variant.Filled OnClick=RegisterUser Class="ml-auto">
 			Register
 		</MudButton>
 	</MudCardActions>
