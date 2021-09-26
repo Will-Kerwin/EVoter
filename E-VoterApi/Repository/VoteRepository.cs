@@ -28,13 +28,14 @@ namespace E_VoterApi.Repository
 
                 var result = await con.ExecuteAsync(
                     $@"insert into Vote (voteID, nomineeID, electionID, voterID)
-                   values (NEWID(), {vote.nomineeID}, {vote.electionID}, {vote.voterID})",
+                   values (NEWID(), '{vote.nomineeID}', '{vote.electionID}', '{vote.voterID}')",
                     commandType: CommandType.Text
                     );
                 return (1, "");
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, "");
                 throw;
             }
@@ -51,8 +52,9 @@ namespace E_VoterApi.Repository
             if (!(await ElectionRepository.ElectionExists(electionID)))
                 return (0, 0, "Election");
 
+
             var result = await con.QuerySingleAsync<int>(
-                    $@"select count(voteID) as total from Vote where nomineeID = {nomineeID} and electionID = {electionID};",
+                    $@"select count(voteID) as total from Vote where nomineeID = '{nomineeID}' and electionID = '{electionID}';",
                     commandType: CommandType.Text
                     );
             return (1, result , "");

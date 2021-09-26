@@ -1,0 +1,27 @@
+﻿@using E_Voter.Store.AuthUseCase
+@if (AuthState.Value.IsAuthenticated)
+{
+	@Authorized
+}
+else
+{
+	@NotAuthorized	
+}
+
+@code {
+
+
+	[Parameter]
+	[EditorRequired]
+	public RenderFragment Authorized { get; set; }
+
+	[Parameter]
+	public RenderFragment NotAuthorized { get; set; }
+
+	[Inject]
+	public IState<AuthState> AuthState { get; set; }
+
+	[Inject]
+	public NavigationManager NavMgr { get; set; }
+
+}

@@ -16,7 +16,7 @@ namespace E_VoterApi.Controllers
             Auth = new AuthRepository();
         }
 
-        [HttpGet]
+        [HttpGet("token")]
         public async Task<IActionResult> GetToken()
         {
             throw new NotImplementedException();
@@ -50,12 +50,11 @@ namespace E_VoterApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> register([FromBody] UserDetails newUser)
+        public async Task<IActionResult> Register([FromBody] RegisterUserModel newUser)
         {
             var registerUser = await Auth.RegisterUser(newUser);
             if (registerUser.success)
             {
-                newUser.password = "";
                 return Ok();
             }
             else

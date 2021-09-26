@@ -2,6 +2,6 @@
 {
     public class BaseRepository
     {
-        protected readonly static string ConnectionString = "Server=localhost;Database=EVoter;Trusted_Connection=True;MultipleActiveResultSets=true";
+        protected readonly static string ConnectionString = "Server=localhost;Database=EVoter;Trusted_Connection=True;";
     }
 }

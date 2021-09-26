@@ -18,13 +18,14 @@ namespace E_VoterApi.Repository
             {
                 using SqlConnection con = new SqlConnection(ConnectionString);
                 var checkElection = await con.QuerySingleAsync<Guid?>(
-                        $@"select electionID from Election where userID = {electionID}",
+                        $@"select electionID from Election where userID = '{electionID}'",
                         commandType: CommandType.Text
                         );
                 return checkElection != null ? true : false;
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return false;
                 throw;
             }
@@ -36,13 +37,33 @@ namespace E_VoterApi.Repository
             {
                 using SqlConnection con = new SqlConnection(ConnectionString);
                 var checkElection = await con.QuerySingleAsync<Guid?>(
-                        $@"select userID from Nominee where userID = {userID}",
+                        $@"select userID from Nominee where userID = '{userID}'",
                         commandType: CommandType.Text
                         );
                 return checkElection != null ? true : false;
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
+                return false;
+                throw;
+            }
+        }
+
+        public static async Task<bool> HasNominees(Guid electionID)
+        {
+            try
+            {
+                using SqlConnection con = new SqlConnection(ConnectionString);
+                var checkNominee = await con.QuerySingleAsync<Guid?>(
+                        $@"select userID from Nominee where electionID = '{electionID}'",
+                        commandType: CommandType.Text
+                        );
+                return checkNominee != null ? true : false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return false;
                 throw;
             }
@@ -56,13 +77,14 @@ namespace E_VoterApi.Repository
                 var result = await con.QuerySingleAsync<Guid>(
                     $@"insert into Election (electionID, electionStartDate, electionEndDate, electionName) 
                            output inserted.electionID
-                           values (NEWID(),{election.electionStartDate},{election.electionEndDate},{election.electionName});",
+                           values (NEWID(), '{election.electionStartDate.ToString("yyyy-MM-dd HH:mm:ss")}', '{election.electionEndDate.ToString("yyyy-MM-dd HH:mm:ss")}', N'{election.electionName}');",
                     commandType: CommandType.Text
                     );
                 return (true, result);
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (false, new Guid());
                 throw;
             }
@@ -74,7 +96,7 @@ namespace E_VoterApi.Repository
             {
                 using SqlConnection con = new SqlConnection(ConnectionString);
                 var result = await con.QuerySingleAsync<ElectionModel>(
-                    $@"select * from Election where electionID = {electionID}",
+                    $@"select * from Election where electionID = '{electionID}'",
                     commandType: CommandType.Text
                     );
                 if (result == null)
@@ -84,6 +106,7 @@ namespace E_VoterApi.Repository
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, new ElectionModel());
                 throw;
             }
@@ -99,13 +122,14 @@ namespace E_VoterApi.Repository
                     commandType: CommandType.Text
                     );
                 List<ElectionModel> elections = result.Read<ElectionModel>().ToList();
-                if (elections.Count != 0)
+                if (elections.Count == 0)
                     return (0, new List<ElectionModel>());
                 else
                     return (1, elections);
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, new List<ElectionModel>());
                 throw;
             }
@@ -123,15 +147,19 @@ namespace E_VoterApi.Repository
                 if (!(await ElectionExists(nominee.electionID)))
                     return (0, "Election");
 
+                if (!(await NomineeExits(nominee.userID)))
+                    return (0, "Nominee");
+
                 var result = await con.ExecuteAsync(
                     $@"insert into Nominee (electionID, userID, association, description)
-                       values ({nominee.electionID},{nominee.userID},{nominee.association},{nominee.description})",
+                       values ('{nominee.electionID}', '{nominee.userID}', '{nominee.association}', N'{nominee.description}');",
                     commandType: CommandType.Text
                     );
                 return (1, "");
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.StackTrace}");
                 return (-1,"");
                 throw;
             }
@@ -150,13 +178,14 @@ namespace E_VoterApi.Repository
                     return (0, "Election");
 
                 var result = await con.ExecuteAsync(
-                    $@"delete from Nominee where electionID = {electionID} and userID = {userID}",
+                    $@"delete from Nominee where electionID = '{electionID}' and userID = '{userID}'",
                     commandType: CommandType.Text
                     );
                 return (1, "");
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, "");
                 throw;
             }
@@ -171,10 +200,13 @@ namespace E_VoterApi.Repository
                 if (!(await ElectionExists(electionID)))
                     return (0, new List<TallyVoteModel>(), "Election");
 
+                if (!(await HasNominees(electionID)))
+                    return (0, new List<TallyVoteModel>(), "Nominee");
+
                 var data = await con.QueryMultipleAsync(
                     $@"select n.userID as nominee, count(v.voteID) as votes from Vote as v 
                    join Nominee as n on v.electionID = n.electionID
-                   where v.electionID = {electionID}
+                   where v.electionID = '{electionID}'
                    group by n.userID",
                     commandType: CommandType.Text
                     );
@@ -185,6 +217,7 @@ namespace E_VoterApi.Repository
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, new List<TallyVoteModel>(), "");
                 throw;
             }
@@ -207,13 +240,13 @@ namespace E_VoterApi.Repository
                 {
                     await con.ExecuteAsync(
                         $@"insert into Results (nomineeID, electionID, totalVotes, ranking)
-                       values ({vote.nominee}, {electionID}, {vote.votes}, {ranking})",
+                       values ('{vote.nominee}', '{electionID}', '{vote.votes}', {ranking})",
                         commandType: CommandType.Text
                         );
                 }
 
                 var data = await con.QueryMultipleAsync(
-                    $@"select * from Results where electionID = {electionID}",
+                    $@"select * from Results where electionID = '{electionID}'",
                     commandType: CommandType.Text
                     );
 
@@ -223,6 +256,7 @@ namespace E_VoterApi.Repository
             }
             catch (Exception e)
             {
+                Console.WriteLine($"{e.Message}: {e.InnerException}");
                 return (-1, new List<ElectionResultModel>(), "");
                 throw;
             }

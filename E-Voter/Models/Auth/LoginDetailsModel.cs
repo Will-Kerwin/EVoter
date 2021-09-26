@@ -1,7 +1,7 @@
-﻿namespace E_VoterApi.Models
+﻿namespace E_Voter.Models.Auth
 {
-    public class LoginModel
-    {
+    public class LoginDetailsModel
+{
         public string email { get; set; }
         public string password { get; set; }
     }

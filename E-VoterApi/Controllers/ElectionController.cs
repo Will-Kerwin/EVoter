@@ -46,10 +46,7 @@ namespace E_VoterApi.Controllers
         {
             var result = await Election.NewElection(election);
             if (result.success)
-            {
-                election.elctionID = result.electionID;
                 return Ok(election);
-            }
             else
                 return StatusCode(500, "Error creating election");
         }
@@ -63,7 +60,10 @@ namespace E_VoterApi.Controllers
                 return Ok(nominee);
 
             else if (result.status == 0)
-                return NotFound($"{result.reason} was not found");
+                if(result.reason == "Nominee")
+                    return BadRequest($"{result.reason} is already a nominee");
+                else
+                    return NotFound($"{result.reason} was not found");
 
             else
                 return StatusCode(500, "Could not add to election");

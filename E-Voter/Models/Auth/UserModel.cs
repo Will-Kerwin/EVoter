@@ -1,12 +1,11 @@
-﻿namespace E_VoterApi.Models
+﻿namespace E_Voter.Models.Auth
 {
-    public class UserDetails
+    public class UserModel
     {
-        public Guid userID {  get; set; }
+        public Guid userID { get; set; }
         public string email { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string contactNo { get; set; }
     }
 }
-

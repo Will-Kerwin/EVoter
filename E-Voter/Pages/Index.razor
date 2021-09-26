@@ -1,1 +1,19 @@
 ﻿@page "/"
+@inject NavigationManager NavMgr
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+<MudGrid Justify="Justify.Center">
+	<MudItem xs="12">
+		<MudText Typo="Typo.h1" Align=Align.Center >E - Voter</MudText>
+	</MudItem>
+	<MudItem xs="12" md="6">
+		<MudButton Style="text-align: center;" FullWidth OnClick="@(() => NavMgr.NavigateTo("login"))" Color="Color.Primary" Size="Size.Large">
+			Login
+		</MudButton>
+	</MudItem>
+	<MudItem xs="12" md="6">
+		<MudButton Style="text-align: center;" FullWidth OnClick="@(() => NavMgr.NavigateTo("register"))" Color="Color.Primary" Size="Size.Large">
+			Register
+		</MudButton>
+	</MudItem>
+</MudGrid>
