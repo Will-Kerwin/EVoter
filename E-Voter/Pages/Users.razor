@@ -1,0 +1,99 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@inject DataSynchroniser DataSynchronizer
+@implements IDisposable
+<PageTitle>Users</PageTitle>
+<SyncStatus />
+<UserDetails User="selectedUser" OnHide="@(() => { selectedUser = null; })" />
+
+@if (db is not null)
+{
+    <div class="inventory-grid">
+        <Grid Virtualize="true" Items="@GetFilteredUsers()" ItemKey="@(x => x.userID)" ItemSize="35">
+
+            <TemplateColumn Title="Last Name" SortBy="@(items => items.SortByAscending(x => x.lastName).ThenAscending(x => x.firstName))" Class="col-category">
+                <ChildContent>@context.lastName, @context.firstName</ChildContent>
+                <ColumnOptions>
+                    <p>Last Name (@lastName.Length)</p>
+                    <select multiple class="w-64 bg-gray-100 border-grey-500 border my-4" @bind="lastName" @onclick="@(() => firstName = Array.Empty<string>())">
+                        @foreach (var name in db.Users.Select(x => x.lastName).Distinct())
+                        {
+                            <option>@name</option>
+                        }
+                    </select>
+
+                    <p>First Name (@firstName.Length)</p>
+                    <select multiple class="w-64 bg-gray-100 border-grey-500 border my-4" @bind="firstName">
+                        @foreach (var name in db.Users.Where(x => lastName.Contains(x.lastName)).Select(x => x.firstName).Distinct())
+                        {
+                            <option>@name</option>
+                        }
+                    </select>
+
+                    <div><button class="bg-gray-200 px-5 py-1 mb-2" @onclick="@(() => { lastName = Array.Empty<string>(); firstName = Array.Empty<string>(); })">Reset</button></div>
+                </ColumnOptions>
+            </TemplateColumn>
+
+            <PropertyColumn Title="Email" Property="@(x => x.email)" Class="col-name" OnCellClicked="@((User user) => { selectedUser = user; })">
+                <ColumnOptions>
+                    <input @bind="searchName" @bind:event="oninput" type="search" placeholder="Search..." />
+                </ColumnOptions>
+            </PropertyColumn>
+
+            <PropertyColumn Title="Contact No" Property="@(x => x.contactNo)" Class="col-location" />
+
+        </Grid>
+        <div class="status-bar">
+            Showing @GetFilteredUsers()?.Count().ToString("N0") items
+        </div>
+    </div>
+}
+
+@code {
+    ClientSideDbContext? db;
+
+    [Parameter] public string? SearchName { get; set; }
+
+    string[] lastName = Array.Empty<string>();
+    string[] firstName = Array.Empty<string>();
+    string searchName = string.Empty;
+    int minStock, maxStock = 50000;
+    User? selectedUser;
+
+    IQueryable<User>? GetFilteredUsers()
+    {
+        if (db is null)
+        {
+            return null;
+        }
+
+        var result = db.Users.AsNoTracking().AsQueryable();
+        if (lastName.Any())
+        {
+            result = result.Where(x => lastName.Contains(x.lastName));
+        }
+        if (firstName.Any())
+        {
+            result = result.Where(x => firstName.Contains(x.firstName));
+        }
+
+        return result;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        db = await DataSynchronizer.GetPreparedDbContextAsync();
+        DataSynchronizer.OnUpdate += StateHasChanged;
+    }
+
+    protected override void OnParametersSet()
+    {
+        searchName = SearchName ?? string.Empty;
+    }
+
+    public void Dispose()
+    {
+        db?.Dispose();
+        DataSynchronizer.OnUpdate -= StateHasChanged;
+    }
+}

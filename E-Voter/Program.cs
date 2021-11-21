@@ -22,4 +22,6 @@ builder.Services.AddFluxor(o =>
     o.ScanAssemblies(typeof(Program).Assembly);
 });
 
+builder.Services.AddElectionDataDbContext();
+
 await builder.Build().RunAsync();

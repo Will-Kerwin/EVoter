@@ -15,7 +15,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
     <PackageReference Include="MudBlazor" Version="6.0.2" />
-		<NativeFileReference Include="Data\e_sqlite3.o" />
+    <NativeFileReference Include="Data\e_sqlite3.o" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QuickGrid\QuickGrid.csproj" />
   </ItemGroup>
 
 </Project>
