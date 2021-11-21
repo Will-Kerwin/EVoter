@@ -29,6 +29,20 @@ namespace E_VoterApi.Controllers
                 return StatusCode(500, "Error finding elections");
         }
 
+        [HttpGet("/sync")]
+        public async Task<IActionResult> GetElectionsSync()
+        {
+            var result = await Election.GetAllElections();
+            if (result.success == 1)
+            {
+                result.Take()
+            }
+            else if (result.success == 0)
+                return NotFound();
+            else
+                return StatusCode(500, "Error finding elections");
+        }
+
         [HttpGet("{electionID}")]
         public async Task<IActionResult> GetElection(Guid electionID)
         {

@@ -8,5 +8,6 @@
         public string electionName { get; set; }
         public int? totalVotes {  get; set; }
         public Guid? winnerID {  get; set; }
+        public long modifiedTicks { get; set; }
     }
 }
